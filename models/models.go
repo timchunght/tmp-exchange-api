@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// 用于表示一笔订单或者交易的方向：买，卖
+// Use for representing Buy, Sell side
 type Side string
 
 func NewSideFromString(s string) (*Side, error) {
@@ -31,14 +31,12 @@ func (s Side) String() string {
 	return string(s)
 }
 
-// 订单类型
 type OrderType string
 
 func (t OrderType) String() string {
 	return string(t)
 }
 
-// 用于表示订单状态
 type OrderStatus string
 
 func NewOrderStatusFromString(s string) (*OrderStatus, error) {
@@ -59,10 +57,9 @@ func (t OrderStatus) String() string {
 	return string(t)
 }
 
-// 用于表示账单类型
 type BillType string
 
-// 用于表示一条fill完成的原因
+// Reason for fill completion
 type DoneReason string
 
 type TransactionStatus string
@@ -74,15 +71,19 @@ const (
 	SideBuy  = Side("buy")
 	SideSell = Side("sell")
 
-	// 初始状态
+	// Order initial state
 	OrderStatusNew = OrderStatus("new")
-	// 已经加入orderBook
+
+	// Added to orderBook
 	OrderStatusOpen = OrderStatus("open")
-	// 中间状态，请求取消订单
+
+	// In progress state, request for cancelling order
 	OrderStatusCancelling = OrderStatus("cancelling")
-	// 订单已经被取消，部分成交的订单也是cancelled
+
+	// Order has been canclled, partially filled order is cancelled
 	OrderStatusCancelled = OrderStatus("cancelled")
-	// 订单完全成交
+
+	// Order completed filled
 	OrderStatusFilled = OrderStatus("filled")
 
 	BillTypeTrade = BillType("trade")

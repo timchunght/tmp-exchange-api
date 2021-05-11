@@ -101,7 +101,7 @@ func PlaceOrder(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, order)
 }
 
-// 撤销指定id的订单
+// Delete order by ID
 // DELETE /orders/1
 // DELETE /orders/client:1
 func CancelOrder(ctx *gin.Context) {
@@ -133,7 +133,7 @@ func CancelOrder(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, nil)
 }
 
-// 批量撤单
+// Bulk order cancellation
 // DELETE /orders/?productId=BTC-USDT&side=[buy,sell]
 func CancelOrders(ctx *gin.Context) {
 	productId := ctx.Query("productId")

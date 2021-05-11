@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-// 获取用户余额
+// Get user accounts/balances
 // GET /accounts?currency=BTC&currency=USDT
 func GetAccounts(ctx *gin.Context) {
 	var accountVos []*AccountVo

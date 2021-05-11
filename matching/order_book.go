@@ -192,7 +192,7 @@ func (o *orderBook) CancelOrder(order *models.Order) (logs []Log) {
 		return logs
 	}
 
-	// 将order的size全部decr，等于remove操作
+	// decrease all order size, equals to removal
 	remainingSize := bookOrder.Size
 	err := o.depths[order.Side].decrSize(order.Id, bookOrder.Size)
 	if err != nil {

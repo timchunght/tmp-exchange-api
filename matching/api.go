@@ -4,50 +4,55 @@ import (
 	"github.com/iosis/exchange-api/models"
 )
 
-// 用于撮合引擎读取order，需要支持设置offset，从指定的offset开始读取
+// Use for reading orders from matching engine
+// setting offset and fetch orders from offset
 type OrderReader interface {
-	// 设置读取的起始offset
+
+	// Set the offset for where to start order fetching
 	SetOffset(offset int64) error
 
-	// 拉取order
+	// Fetch orders
 	FetchOrder() (offset int64, order *models.Order, err error)
 }
 
-// 用于保存撮合日志
+// For Log storage
 type LogStore interface {
-	// 保存日志
+
+	// Persist log
 	Store(logs []interface{}) error
 }
 
-// 以观察者模式读取撮合日志
+// Use LogReader mode to get matching log
 type LogReader interface {
-	// 获取当前的productId
+
+	// Get current productID
 	GetProductId() string
 
-	// 注册一个日志观察者
+	// Register Log Observer
 	RegisterObserver(observer LogObserver)
 
-	// 开始执行读取log，读取到的log将会回调给观察者
+	// Start log reading, retrieved log will be sent to observer callbcak
 	Run(seq, offset int64)
 }
 
-// 撮合日志reader观察者
+// Matching engine log observer
 type LogObserver interface {
-	// 当读到OpenLog时回调
+	// callback for when OpenLog succeeds
 	OnOpenLog(log *OpenLog, offset int64)
 
-	// 当读到MatchLog时回调
+	// callback for when MatchLog succeeds
 	OnMatchLog(log *MatchLog, offset int64)
 
-	// 当读到DoneLog是回调
+	// callback for when DoneLog succeeds
 	OnDoneLog(log *DoneLog, offset int64)
 }
 
 // 用于保存撮合引擎的快照
 type SnapshotStore interface {
-	// 保存快照
+
+	// Persist snapshot
 	Store(snapshot *Snapshot) error
 
-	// 获取最后一次快照
+	// Get latest snapshot
 	GetLatest() (*Snapshot, error)
 }

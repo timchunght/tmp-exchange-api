@@ -141,7 +141,7 @@ func ExecuteFill(orderId int64) error {
 			order.FilledSize = order.FilledSize.Add(fill.Size)
 
 			if order.Side == models.SideBuy {
-				// 买单，incr base
+				// buy order，incr base
 				bill, err := AddDelayBill(db, order.UserId, product.BaseCurrency, fill.Size, decimal.Zero,
 					models.BillTypeTrade, notes)
 				if err != nil {
@@ -149,7 +149,7 @@ func ExecuteFill(orderId int64) error {
 				}
 				bills = append(bills, bill)
 
-				// 买单，decr quote
+				// buy order，decr quote
 				bill, err = AddDelayBill(db, order.UserId, product.QuoteCurrency, decimal.Zero, executedValue.Neg(),
 					models.BillTypeTrade, notes)
 				if err != nil {
@@ -158,7 +158,7 @@ func ExecuteFill(orderId int64) error {
 				bills = append(bills, bill)
 
 			} else {
-				// 卖单，decr base
+				// sell order，decr base
 				bill, err := AddDelayBill(db, order.UserId, product.BaseCurrency, decimal.Zero, fill.Size.Neg(),
 					models.BillTypeTrade, notes)
 				if err != nil {
@@ -166,7 +166,7 @@ func ExecuteFill(orderId int64) error {
 				}
 				bills = append(bills, bill)
 
-				// 卖单，incr quote
+				// sell order，incr quote
 				bill, err = AddDelayBill(db, order.UserId, product.QuoteCurrency, executedValue, decimal.Zero,
 					models.BillTypeTrade, notes)
 				if err != nil {
@@ -185,7 +185,8 @@ func ExecuteFill(orderId int64) error {
 			}
 
 			if order.Side == models.SideBuy {
-				// 如果是是买单，需要解冻剩余的funds
+
+				// if it is still buy order, unfreeze reamining funds required
 				remainingFunds := order.Funds.Sub(order.ExecutedValue)
 				if remainingFunds.GreaterThan(decimal.Zero) {
 					bill, err := AddDelayBill(db, order.UserId, product.QuoteCurrency, remainingFunds, remainingFunds.Neg(),
@@ -197,7 +198,8 @@ func ExecuteFill(orderId int64) error {
 				}
 
 			} else {
-				// 如果是卖单，解冻剩余的size
+
+				// if it is sell order, unfreeze remaining size
 				remainingSize := order.Size.Sub(order.FilledSize)
 				if remainingSize.GreaterThan(decimal.Zero) {
 					bill, err := AddDelayBill(db, order.UserId, product.BaseCurrency, remainingSize, remainingSize.Neg(),

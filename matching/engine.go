@@ -27,32 +27,35 @@ type Engine struct {
 	// this value will be restored from snapshot when it first starts
 	appliedOrderOffset int64
 
-	// 读取的order会写入chan，写入order的同时需要携带该order的offset
+	// fetched order will be sent to chan, sent order requires order's Offset
 	orderCh chan *offsetOrder
 
-	// 用于保存orderBook log
+	// used for storing orderBook log
 	logStore LogStore
 
-	// log写入队列，所有待写入的log需要进入该chan等待
+	// send log to queue, all log must wait in chan for persistence
 	logCh chan Log
 
-	// 发起snapshot请求，需要携带最后一次snapshot的offset
+	// send snapshot request, must require order offset from the last offset
 	snapshotReqCh chan *Snapshot
 
-	// snapshot已经完全准备好，需要确保snapshot之前的所有数据都已经提交
+	// snapshot completely ready,
+	// all data previous to snapshot requiring persistence are submitted
 	snapshotApproveReqCh chan *Snapshot
 
-	// snapshot数据准备好并且snapshot之前的所有数据都已经提交
+	// snapshot data prepared and all data previous to snapshot are sibmitted
 	snapshotCh chan *Snapshot
 
-	// 持久化snapshot的存储方式，应该支持多种方式，如本地磁盘，redis等
+	// snapshot storage/persistence
+	// should support multiple adapters, such as local disk and redis, etc
 	snapshotStore SnapshotStore
 
 	lastSnapOrderOffset int64
 	committedLogSeq     int64
 }
 
-// 快照是engine在某一时候的一致性内存状态
+// Snapshot is the in memory respresentation
+// of the orderBook state at the time
 type Snapshot struct {
 	OrderBookSnapshot orderBookSnapshot
 	OrderOffset       int64
@@ -77,7 +80,7 @@ func NewEngine(product *models.Product, orderReader OrderReader, logStore LogSto
 		logStore:             logStore,
 	}
 
-	// 获取最新的snapshot，并使用snapshot进行恢复
+	// Get the latest snapshot and recover from latest snapshot
 	snapshot, err := snapshotStore.GetLatest()
 	if err != nil {
 		logger.Fatalf("get latest snapshot error: %v", err)
@@ -95,7 +98,7 @@ func (e *Engine) Start() {
 	go e.runSnapshots()
 }
 
-// 负责不断的拉取order，写入chan
+// constantly fetch order and send to channel for execution
 func (e *Engine) runFetcher() {
 	var offset = e.appliedOrderOffset
 	if offset > 0 {
@@ -116,7 +119,8 @@ func (e *Engine) runFetcher() {
 	}
 }
 
-// 从本地队列获取order，执行orderBook操作，同时要响应snapshot请求
+// Fetch order from local queue, apply orderBook execution, and
+// respond to snapshot request
 func (e *Engine) runApplier() {
 	var orderOffset int64
 
@@ -131,17 +135,18 @@ func (e *Engine) runApplier() {
 				logs = e.OrderBook.ApplyOrder(offsetOrder.Order)
 			}
 
-			// 将orderBook产生的log写入chan进行持久化
+			// send log created by orderBook into chan for persistence
 			for _, log := range logs {
 				e.logCh <- log
 			}
 
-			// 记录订单的offset用于判断是否需要进行快照
+			// record order offset to be used
+			// for determining whether snapshot is required
 			orderOffset = offsetOrder.Offset
 			e.appliedOrderOffset = offsetOrder.Offset
 
 		case snapshot := <-e.snapshotReqCh:
-			// 接收到快照请求，判断是否真的需要执行快照
+			// received snapshot request and determine if snapshot is required
 			delta := orderOffset - snapshot.OrderOffset
 			if delta <= 1000 {
 				continue
@@ -152,7 +157,7 @@ func (e *Engine) runApplier() {
 
 			e.saveSnapshotBackground()
 
-			// 执行快照，并将快照数据写入批准chan
+			// execute snapshot and send snapshot data to chan
 			snapshot.OrderBookSnapshot = e.OrderBook.Snapshot()
 			snapshot.OrderOffset = orderOffset
 			e.snapshotApproveReqCh <- snapshot
@@ -206,7 +211,8 @@ func (e *Engine) runCommitter() {
 				continue
 			}
 
-			// 当前还有未批准的snapshot，但是又有新的snapshot请求，丢弃旧的请求
+			// there is pending/unapproved snapshot but received new snapshot request
+			// discard OLD snapshot request
 			if pending != nil {
 				logger.Infof("discard snapshot request (seq=%v), new one (seq=%v) received",
 					pending.OrderBookSnapshot.LogSeq, snapshot.OrderBookSnapshot.LogSeq)

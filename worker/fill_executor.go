@@ -14,7 +14,9 @@ import (
 const fillWorkerNum = 10
 
 type FillExecutor struct {
-	// 用于接收 internal sharding之后的fill，use orderId for sharding，can lower possibility of lock contention，
+
+	// used for receiving fill after internal sharding,
+	// use orderId for sharding，can lower possibility of lock contention，
 	workerChs [fillWorkerNum]chan *models.Fill
 }
 
@@ -23,7 +25,8 @@ func NewFillExecutor() *FillExecutor {
 		workerChs: [fillWorkerNum]chan *models.Fill{},
 	}
 
-	// 初始化和fillWorkersNum一样数量的routine，每个routine负责一个chan
+	// initialze the same number of routine as fillWorkerNum
+	// each routine handles one chan
 	for i := 0; i < fillWorkerNum; i++ {
 		f.workerChs[i] = make(chan *models.Fill, 512)
 		go func(idx int) {
@@ -69,7 +72,7 @@ func (s *FillExecutor) Start() {
 	go s.runMqListener()
 }
 
-// 监听消息队列通知
+// Listens for message notification from queue
 func (s *FillExecutor) runMqListener() {
 	gbeConfig := conf.GetConfig()
 
@@ -93,12 +96,12 @@ func (s *FillExecutor) runMqListener() {
 			continue
 		}
 
-		// 按照orderId取模进行sharding，相同的orderId会分配到固定的chan
+		// use orderId for sharding, same orderId will be sent to the same chan
 		s.workerChs[fill.OrderId%fillWorkerNum] <- &fill
 	}
 }
 
-// 定时轮询数据库
+// Periodically poll database
 func (s *FillExecutor) runInspector() {
 	for {
 		select {

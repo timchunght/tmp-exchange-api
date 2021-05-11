@@ -15,12 +15,14 @@ func ExecuteBill(userId int64, currency string) error {
 	}
 	defer func() { _ = tx.Rollback() }()
 
-	// 锁定用户资金记录
+	// Get account for user with specified currency
 	account, err := tx.GetAccountForUpdate(userId, currency)
 	if err != nil {
 		return err
 	}
-	// 资金记录不存在，创建一条，并再次执行加锁
+
+	// Account with specified currency does not exist
+	// open create tranasction
 	if account == nil {
 		err = tx.AddAccount(&models.Account{
 			UserId:    userId,
@@ -36,7 +38,7 @@ func ExecuteBill(userId int64, currency string) error {
 		}
 	}
 
-	// 获取所有未入账的bill
+	// get all unsettled bills from user
 	bills, err := tx.GetUnsettledBillsByUserId(userId, currency)
 	if err != nil {
 		return err
