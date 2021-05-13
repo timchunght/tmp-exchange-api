@@ -47,7 +47,7 @@ type LogObserver interface {
 	OnDoneLog(log *DoneLog, offset int64)
 }
 
-// 用于保存撮合引擎的快照
+// Interace for snapshot persistance
 type SnapshotStore interface {
 
 	// Persist snapshot
