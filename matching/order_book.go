@@ -282,6 +282,7 @@ func (d *depth) decrSize(orderId int64, size decimal.Decimal) error {
 
 type BookOrder struct {
 	OrderId int64
+	UserId  int64
 	Size    decimal.Decimal
 	Funds   decimal.Decimal
 	Price   decimal.Decimal
@@ -292,6 +293,7 @@ type BookOrder struct {
 func newBookOrder(order *models.Order) *BookOrder {
 	return &BookOrder{
 		OrderId: order.Id,
+		UserId:  order.UserId,
 		Size:    order.Size,
 		Funds:   order.Funds,
 		Price:   order.Price,
