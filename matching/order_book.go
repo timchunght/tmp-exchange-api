@@ -137,6 +137,11 @@ func (o *orderBook) ApplyOrder(order *models.Order) (logs []Log) {
 
 			// adjust the funds of taker order
 			takerOrder.Funds = takerOrder.Funds.Sub(funds)
+			remainingFundTakerSize := takerOrder.Funds.Div(price).Truncate(o.product.BaseScale)
+			if remainingFundTakerSize.IsZero() {
+				// TODO: consider marking the order as filled/done in line 181
+				fmt.Println("Remaining fund cannot purchase more coins")
+			}
 		} else {
 			log.Fatal("unknown orderType and side combination")
 		}
