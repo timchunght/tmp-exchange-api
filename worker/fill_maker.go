@@ -45,6 +45,8 @@ func (t *FillMaker) Start() {
 
 func (t *FillMaker) OnMatchLog(log *matching.MatchLog, offset int64) {
 
+	// the side of the fill is the makeOrder.Side
+	// so set the taker to the opposite side
 	t.fillCh <- &models.Fill{
 		TradeId:    log.TradeId,
 		MessageSeq: log.Sequence,
@@ -53,7 +55,7 @@ func (t *FillMaker) OnMatchLog(log *matching.MatchLog, offset int64) {
 		Size:       log.Size,
 		Price:      log.Price,
 		Liquidity:  "T",
-		Side:       log.Side,
+		Side:       log.Side.Opposite(),
 		LogOffset:  offset,
 		LogSeq:     log.Sequence,
 	}
@@ -65,7 +67,7 @@ func (t *FillMaker) OnMatchLog(log *matching.MatchLog, offset int64) {
 		Size:       log.Size,
 		Price:      log.Price,
 		Liquidity:  "M",
-		Side:       log.Side.Opposite(),
+		Side:       log.Side,
 		LogOffset:  offset,
 		LogSeq:     log.Sequence,
 	}
