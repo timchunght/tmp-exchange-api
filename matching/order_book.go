@@ -74,6 +74,7 @@ func NewOrderBook(product *models.Product) *orderBook {
 }
 
 func (o *orderBook) ApplyOrder(order *models.Order) (logs []Log) {
+	takerOrderFundsZero := false
 	// prevent orders from being submitted repeatedly to the matching engine
 	err := o.orderIdWindow.put(order.Id)
 	if err != nil {
@@ -141,6 +142,7 @@ func (o *orderBook) ApplyOrder(order *models.Order) (logs []Log) {
 			if remainingFundTakerSize.IsZero() {
 				// TODO: consider marking the order as filled/done in line 181
 				fmt.Println("Remaining fund cannot purchase more coins")
+				takerOrderFundsZero = true
 			}
 		} else {
 			log.Fatal("unknown orderType and side combination")
@@ -178,7 +180,7 @@ func (o *orderBook) ApplyOrder(order *models.Order) (logs []Log) {
 			takerOrder.Price = decimal.Zero
 			remainingSize = decimal.Zero
 			if (takerOrder.Side == models.SideSell && takerOrder.Size.GreaterThan(decimal.Zero)) ||
-				(takerOrder.Side == models.SideBuy && takerOrder.Funds.GreaterThan(decimal.Zero)) {
+				(takerOrder.Side == models.SideBuy && takerOrder.Funds.GreaterThan(decimal.Zero) && !takerOrderFundsZero) {
 				reason = models.DoneReasonCancelled
 			}
 		}

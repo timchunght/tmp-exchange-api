@@ -87,7 +87,7 @@ func (s *OrderBookStream) runApplier() {
 				newSize := order.Size.Sub(log.RemainingSize)
 				l2Change = s.orderBook.saveOrder(logOffset.offset, log.Sequence, log.OrderId, newSize, log.Price,
 					log.Side)
-
+				fmt.Println(log.Side, log.OrderId)
 			case *matching.OpenLog:
 				log := logOffset.log.(*matching.OpenLog)
 				l2Change = s.orderBook.saveOrder(logOffset.offset, log.Sequence, log.OrderId, log.RemainingSize,
@@ -102,6 +102,7 @@ func (s *OrderBookStream) runApplier() {
 				newSize := order.Size.Sub(log.Size)
 				l2Change = s.orderBook.saveOrder(logOffset.offset, log.Sequence, log.MakerOrderId, newSize,
 					log.Price, log.Side)
+				fmt.Println(log.Side, log.MakerOrderId)
 			}
 
 			if lastLevel2Snapshot == nil || s.orderBook.seq-lastLevel2Snapshot.Seq > 10 {

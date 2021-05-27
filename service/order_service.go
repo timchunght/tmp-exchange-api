@@ -177,6 +177,7 @@ func ExecuteFill(orderId int64) error {
 
 		} else {
 			if fill.DoneReason == models.DoneReasonCancelled {
+				fmt.Println("done reason cancelled: ", orderId)
 				order.Status = models.OrderStatusCancelled
 			} else if fill.DoneReason == models.DoneReasonFilled {
 				order.Status = models.OrderStatusFilled
