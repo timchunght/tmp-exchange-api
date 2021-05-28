@@ -72,7 +72,7 @@ type ProductVo struct {
 
 type tradeVo struct {
 	Time    string `json:"time"`
-	TradeId int64  `json:"tradeId"`
+	TradeId string `json:"tradeId"`
 	Price   string `json:"price"`
 	Size    string `json:"size"`
 	Side    string `json:"side"`

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/emirpasic/gods/maps/treemap"
+	"github.com/google/uuid"
 	"github.com/iosis/exchange-api/models"
 	// "github.com/iosis/exchange-api/utils"
 	"github.com/shopspring/decimal"
@@ -155,7 +156,8 @@ func (o *orderBook) ApplyOrder(order *models.Order) (logs []Log) {
 		}
 
 		// matched,write a log
-		matchLog := newMatchLog(o.nextLogSeq(), o.product.Id, o.nextTradeSeq(), takerOrder, makerOrder, price, size)
+		tradeID := uuid.New().String()
+		matchLog := newMatchLog(o.nextLogSeq(), o.product.Id, tradeID, o.nextTradeSeq(), takerOrder, makerOrder, price, size)
 		logs = append(logs, matchLog)
 
 		// maker is filled

@@ -82,6 +82,7 @@ func (s *TickerStream) newTickerMessage(log *matching.MatchLog) (*TickerMessage,
 
 	return &TickerMessage{
 		Type:      "ticker",
+		TradeSeq:  log.TradeSeq,
 		TradeId:   log.TradeId,
 		Sequence:  log.Sequence,
 		Time:      log.Time.Format(time.RFC3339),

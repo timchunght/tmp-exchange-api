@@ -166,9 +166,10 @@ type Fill struct {
 	Id         int64 `gorm:"column:id;primary_key;AUTO_INCREMENT"`
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
-	TradeId    int64
-	OrderId    int64 `gorm:"unique_index:o_m"`
-	MessageSeq int64 `gorm:"unique_index:o_m"`
+	TradeId    string `gorm:"column:trade_id"`
+	TradeSeq   int64  `gorm:"column:trade_seq"`
+	OrderId    int64  `gorm:"unique_index:o_m"`
+	MessageSeq int64  `gorm:"unique_index:o_m"`
 	ProductId  string
 	Size       decimal.Decimal `sql:"type:decimal(32,16);"`
 	Price      decimal.Decimal `sql:"type:decimal(32,16);"`
@@ -184,7 +185,8 @@ type Fill struct {
 }
 
 type Trade struct {
-	Id           int64 `gorm:"column:id;primary_key;AUTO_INCREMENT"`
+	Id           string `gorm:"column:id;primary_key"`
+	TradeSeq     int64  `gorm:"column:trade_seq"`
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
 	ProductId    string

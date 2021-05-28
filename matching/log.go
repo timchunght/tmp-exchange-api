@@ -86,7 +86,8 @@ func (l *DoneLog) GetSeq() int64 {
 
 type MatchLog struct {
 	Base
-	TradeId          int64
+	TradeId          string
+	TradeSeq         int64
 	TakerOrderId     int64
 	MakerOrderId     int64
 	MakerOrderUserId int64
@@ -96,10 +97,11 @@ type MatchLog struct {
 	Size             decimal.Decimal
 }
 
-func newMatchLog(logSeq int64, productId string, tradeSeq int64, takerOrder, makerOrder *BookOrder, price, size decimal.Decimal) *MatchLog {
+func newMatchLog(logSeq int64, productId string, tradeId string, tradeSeq int64, takerOrder, makerOrder *BookOrder, price, size decimal.Decimal) *MatchLog {
 	return &MatchLog{
 		Base:             Base{LogTypeMatch, logSeq, productId, time.Now()},
-		TradeId:          tradeSeq,
+		TradeId:          tradeId,
+		TradeSeq:         tradeSeq,
 		TakerOrderId:     takerOrder.OrderId,
 		MakerOrderId:     makerOrder.OrderId,
 		TakerOrderUserId: takerOrder.UserId,

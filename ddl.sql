@@ -39,7 +39,8 @@ CREATE TABLE `g_fill` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
-  `trade_id` bigint(20) NOT NULL DEFAULT '0',
+  `trade_id` varchar(36) NOT NULL,
+  `trade_seq` bigint(20) NOT NULL DEFAULT '0',
   `order_id` bigint(20) NOT NULL DEFAULT '0',
   `product_id` varchar(255) NOT NULL,
   `size` decimal(32,16) NOT NULL,
@@ -118,9 +119,10 @@ CREATE TABLE `g_tick` (
 ) ENGINE=InnoDB AUTO_INCREMENT=2547722 DEFAULT CHARSET=utf8;
 
 CREATE TABLE `g_trade` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `id` varchar(36) NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
+  `trade_seq` bigint(20) NOT NULL DEFAULT '0',
   `product_id` varchar(255) NOT NULL,
   `taker_order_id` bigint(20) NOT NULL,
   `maker_order_id` bigint(20) NOT NULL,
